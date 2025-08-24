@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Range Factory - Rate Checking</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            font-size: 10pt;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-size: 10pt;
+            font-weight: bold;
+        }
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 10pt;
+            color: #374151;
+            background-color: #ffffff;
+            transition: all 0.2s ease-in-out;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+        }
+        .btn {
+            padding: 12px 24px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .btn-primary {
+            background-color: #1e40af;
+            color: #ffffff;
+        }
+        .btn-primary:hover {
+            background-color: #1e3a8a;
+        }
+        .btn-secondary {
+            background-color: #d1d5db;
+            color: #4b5563;
+        }
+        .btn-secondary:hover {
+            background-color: #9ca3af;
+        }
+        .invoice-table th, .invoice-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .invoice-table th {
+            background-color: #e5e7eb;
+            font-weight: 600;
+            color: #4b5563;
+        }
+        .invoice-table tr:last-child td {
+            border-bottom: none;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fefcbf;
+            border: 1px solid #fde68a;
+            color: #92400e;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            z-index: 1000;
+            display: none;
+            max-width: 90%;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 sm:p-12 flex items-center justify-center min-h-screen">
+    <div id="main-container" class="max-w-4xl w-full bg-white rounded-xl shadow-lg p-4 sm:p-10">
+        <!-- Enquiry Form -->
+        <div class="bg-gray-50 p-6 rounded-xl mb-8 border border-gray-200">
+            <h2 class="font-semibold text-gray-700 mb-6">Enter Details</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label for="customerName" class="block font-medium text-gray-700 mb-1">Name</label>
+                    <input type="text" id="customerName" class="form-input" placeholder="Your Name">
+                </div>
+                <div>
+                    <label for="enquiryDate" class="block font-medium text-gray-700 mb-1">Enquiry Date</label>
+                    <input type="date" id="enquiryDate" class="form-input">
+                </div>
+                <div>
+                    <label for="phoneNumber" class="block font-medium text-gray-700 mb-1">Phone Number</label>
+                    <input type="tel" id="phoneNumber" class="form-input" placeholder="Your Phone Number">
+                </div>
+                <div>
+                    <label for="location" class="block font-medium text-gray-700 mb-1">Location</label>
+                    <input type="text" id="location" class="form-input" placeholder="Location">
+                </div>
+            </div>
+        </div>
+
+        <!-- Rate Checker Section -->
+        <div class="bg-gray-50 p-6 rounded-xl mb-8 border border-gray-200">
+            <h2 class="font-semibold text-gray-700 mb-6">Select Rates</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                <!-- Posters Section -->
+                <div class="flex flex-col gap-3">
+                    <p class="block font-medium text-gray-700">Posters</p>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="basic-poster" name="item" value="basic-poster" data-price="80" class="rounded text-blue-600 focus:ring-blue-500">
+                        <label for="basic-poster" class="text-gray-700">Basic Poster</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="semi-creative-poster" name="item" value="semi-creative-poster" data-price="130" class="rounded text-blue-600 focus:ring-blue-500">
+                        <label for="semi-creative-poster" class="text-gray-700">Semi-Creative Poster</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="mega-creative-poster" name="item" value="mega-creative-poster" data-price="500" class="rounded text-blue-600 focus:ring-blue-500">
+                        <label for="mega-creative-poster" class="text-gray-700">Mega-Creative Poster</label>
+                    </div>
+                </div>
+                
+                <!-- Videos Section -->
+                <div class="flex flex-col gap-3">
+                    <p class="block font-medium text-gray-700">Videos</p>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="basic-video" name="item" value="basic-video" data-price="250" class="rounded text-blue-600 focus:ring-blue-500">
+                        <label for="basic-video" class="text-gray-700">Basic Video</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="voice-over-video" name="item" value="voice-over-video" data-price="250" class="rounded text-blue-600 focus:ring-blue-500">
+                        <label for="voice-over-video" class="text-gray-700">Voice Over Video</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="voice-animation-video" name="item" value="voice-animation-video" data-price="500" class="rounded text-blue-600 focus:ring-blue-500">
+                        <label for="voice-animation-video" class="text-gray-700">Voice Animation + Motion Elements Video</label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="avatar-video" name="item" value="avatar-video" data-price="600" class="rounded text-blue-600 focus:ring-blue-500">
+                        <label for="avatar-video" class="text-gray-700">Video with Avatar (5 seconds)</label>
+                    </div>
+                </div>
+                
+                <!-- Quantity Input -->
+                <div class="col-span-1 md:col-span-2 mt-4">
+                    <label for="quantity" class="block font-medium text-gray-700 mb-1">Quantity</label>
+                    <input type="number" id="quantity" class="form-input" min="1" value="1">
+                </div>
+            </div>
+        </div>
+
+        <!-- Invoice Section -->
+        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-inner" id="invoice-content">
+            <!-- Main Heading for PDF and Web -->
+            <div class="text-center mb-10">
+                <h1 class="font-bold text-gray-800 mb-2">HOME RANGE FACTORY DESIGN WORK RATE CHECKING <br><span class="font-medium text-gray-600">(A FREELANCE VENTURE FOR ALL HOUSEWIVES IN KERALA)</span></h1>
+                <p class="text-gray-600 mt-2">A wide range of categories including print, digital, branding, packaging, and promotional materials.</p>
+            </div>
+            
+            <h2 class="font-semibold text-gray-700 mb-6 text-center">Your Quotation</h2>
+            <div id="invoice-details" class="mb-6 hidden">
+                <p class="text-gray-600"><span class="font-medium">Name:</span> <span id="display-name"></span></p>
+                <p class="text-gray-600"><span class="font-medium">Date:</span> <span id="display-date"></span></p>
+                <p class="text-gray-600"><span class="font-medium">Phone Number:</span> <span id="display-phone"></span></p>
+                <p class="text-gray-600"><span class="font-medium">Location:</span> <span id="display-location"></span></p>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full invoice-table text-gray-700">
+                    <thead>
+                        <tr>
+                            <th class="w-1/2 rounded-tl-lg">Item</th>
+                            <th class="w-1/6">Quantity</th>
+                            <th class="w-1/6">Rate (per item)</th>
+                            <th class="w-1/6 rounded-tr-lg">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoiceTableBody">
+                        <!-- Items will be dynamically added here -->
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" class="text-right font-bold pr-4 border-t-2 border-gray-300">Grand Total:</td>
+                            <td id="grandTotal" class="font-bold text-blue-700 border-t-2 border-gray-300">₹0</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <p id="emptyInvoiceMessage" class="text-center text-gray-500 mt-4">No items in the quotation. Add items from above.</p>
+
+            <!-- New section for Terms & Conditions -->
+            <div id="terms-and-conditions-section" class="mt-8 pt-6 border-t-2 border-gray-200" style="display: none;">
+                <h3 class="font-semibold text-gray-700 mb-4">Terms & Conditions</h3>
+                <ol class="list-decimal list-inside text-gray-600 space-y-2">
+                    <li>A 50% advance payment of the design work is required.</li>
+                    <li>Fees may change depending on the complexity of the work. The work will only begin after you have been notified in advance.</li>
+                    <li>More than three revisions are not permitted after the design is completed.</li>
+                    <li>To avoid errors, all necessary information, images, and samples must be provided before starting the work.</li>
+                    <li>A time limit cannot be provided for works without clear details.</li>
+                    <li>An additional fee will be charged for urgent work that needs to be completed within 1 to 3 hours.</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="mt-8 flex flex-col sm:flex-row justify-end gap-4">
+            <button id="clearBtn" class="btn btn-secondary">Clear</button>
+            <button id="downloadPdfBtn" class="btn btn-primary flex items-center justify-center gap-2" disabled>
+                <div id="loadingSpinner" class="hidden loader"></div>
+                <span id="downloadText">Download PDF</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Message Box -->
+    <div id="messageBox" class="message-box">
+        <p id="messageText"></p>
+    </div>
+
+    <!-- jsPDF and related libs for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    
+    <script>
+        // Data for products and prices
+        const products = {
+            'basic-poster': { name: 'Basic Poster', price: 80 },
+            'semi-creative-poster': { name: 'Semi-Creative Poster', price: 130 },
+            'mega-creative-poster': { name: 'Mega-Creative Poster', price: 500 },
+            'basic-video': { name: 'Basic Video', price: 250 },
+            'voice-over-video': { name: 'Voice Over Video', price: 250 },
+            'voice-animation-video': { name: 'Voice Animation + Motion Elements Video', price: 500 },
+            'avatar-video': { name: 'Video with Avatar (5 seconds)', price: 600 }
+        };
+
+        const itemCheckboxes = document.querySelectorAll('input[name="item"]');
+        const quantityInput = document.getElementById('quantity');
+        const invoiceTableBody = document.getElementById('invoiceTableBody');
+        const grandTotalDisplay = document.getElementById('grandTotal');
+        const emptyInvoiceMessage = document.getElementById('emptyInvoiceMessage');
+        const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const invoiceDetails = document.getElementById('invoice-details');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const downloadText = document.getElementById('downloadText');
+        const messageBox = document.getElementById('messageBox');
+        const messageText = document.getElementById('messageText');
+        const termsAndConditionsSection = document.getElementById('terms-and-conditions-section');
+        const mainContainer = document.getElementById('main-container');
+
+        // Function to show a temporary message box
+        function showMessage(message) {
+            messageText.textContent = message;
+            messageBox.style.display = 'block';
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 3000); // Hide the box after 3 seconds
+        }
+
+        // Main function to update all invoice details
+        function updateInvoice() {
+            let grandTotal = 0;
+            invoiceTableBody.innerHTML = '';
+            
+            const quantity = parseInt(quantityInput.value, 10);
+            const selectedItems = Array.from(itemCheckboxes).filter(checkbox => checkbox.checked);
+
+            if (selectedItems.length === 0 || quantity <= 0 || isNaN(quantity)) {
+                emptyInvoiceMessage.classList.remove('hidden');
+                downloadPdfBtn.disabled = true;
+                grandTotalDisplay.textContent = `₹0`;
+                return;
+            }
+
+            emptyInvoiceMessage.classList.add('hidden');
+            downloadPdfBtn.disabled = false;
+            
+            selectedItems.forEach(selectedItem => {
+                const selectedItemValue = selectedItem.value;
+                const selectedProduct = products[selectedItemValue];
+                
+                const totalItemPrice = selectedProduct.price * quantity;
+                grandTotal += totalItemPrice;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="whitespace-nowrap">${selectedProduct.name}</td>
+                    <td>${quantity}</td>
+                    <td>₹${selectedProduct.price}</td>
+                    <td>₹${totalItemPrice}</td>
+                `;
+                invoiceTableBody.appendChild(row);
+            });
+
+            grandTotalDisplay.textContent = `₹${grandTotal}`;
+        }
+        
+        // Event listeners for quantity and checkboxes to auto-update the total
+        itemCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateInvoice);
+        });
+
+        quantityInput.addEventListener('input', updateInvoice);
+
+        // Event listener to clear the form
+        clearBtn.addEventListener('click', () => {
+            document.getElementById('customerName').value = '';
+            document.getElementById('enquiryDate').value = '';
+            document.getElementById('phoneNumber').value = '';
+            document.getElementById('location').value = '';
+            document.getElementById('display-name').textContent = '';
+            document.getElementById('display-date').textContent = '';
+            document.getElementById('display-phone').textContent = '';
+            document.getElementById('display-location').textContent = '';
+            invoiceDetails.classList.add('hidden');
+            // Uncheck all checkboxes on clear
+            itemCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            quantityInput.value = '1';
+            updateInvoice();
+        });
+
+        // PDF generation logic
+        downloadPdfBtn.addEventListener('click', async () => {
+            const customerName = document.getElementById('customerName').value;
+            const enquiryDate = document.getElementById('enquiryDate').value;
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            const location = document.getElementById('location').value;
+
+            if (!customerName || !enquiryDate || !phoneNumber || !location) {
+                showMessage("Please fill in all the details.");
+                return;
+            }
+
+            loadingSpinner.classList.remove('hidden');
+            downloadText.textContent = "Downloading...";
+            downloadPdfBtn.disabled = true;
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const pageWidth = doc.internal.pageSize.getWidth();
+            let y = 20; // Initial vertical position
+
+            // Add Header
+            doc.setFontSize(16);
+            doc.setFont('helvetica', 'bold');
+            doc.text("HOME RANGE FACTORY DESIGN WORK RATE CHECKING", pageWidth / 2, y, { align: "center" });
+            y += 8;
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'normal');
+            doc.text("(A FREELANCE VENTURE FOR ALL HOUSEWIVES IN KERALA)", pageWidth / 2, y, { align: "center" });
+            y += 8;
+            doc.setFontSize(12);
+            doc.text("A wide range of categories including print, digital, branding, packaging, and promotional materials.", pageWidth / 2, y, { align: "center" });
+            y += 20;
+
+            // Add Customer Details
+            doc.setFontSize(12);
+            doc.text(`Name: ${customerName}`, 15, y);
+            y += 7;
+            doc.text(`Date: ${enquiryDate}`, 15, y);
+            y += 7;
+            doc.text(`Phone Number: ${phoneNumber}`, 15, y);
+            y += 7;
+            doc.text(`Location: ${location}`, 15, y);
+            y += 15;
+
+            // Add Invoice Heading
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text("Your Quotation", pageWidth / 2, y, { align: "center" });
+            y += 15;
+            
+            // Table headers
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.text("Item", 15, y);
+            doc.text("Quantity", 100, y);
+            doc.text("Rate (per item)", 130, y);
+            doc.text("Total", 170, y);
+            y += 5;
+            doc.setLineWidth(0.5);
+            doc.line(15, y, pageWidth - 15, y); // Draw a line under headers
+            y += 5;
+
+            // Table rows
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'normal');
+            let grandTotal = 0;
+            const quantity = parseInt(quantityInput.value, 10);
+            const selectedItems = Array.from(itemCheckboxes).filter(checkbox => checkbox.checked);
+
+            if (selectedItems.length > 0) {
+                selectedItems.forEach(item => {
+                    const product = products[item.value];
+                    const totalItemPrice = product.price * quantity;
+                    grandTotal += totalItemPrice;
+                    doc.text(product.name, 15, y);
+                    doc.text(quantity.toString(), 100, y);
+                    doc.text(`₹${product.price}`, 130, y);
+                    doc.text(`₹${totalItemPrice}`, 170, y);
+                    y += 10;
+                });
+            } else {
+                doc.text("No items in the quotation.", pageWidth / 2, y, { align: "center" });
+                y += 10;
+            }
+
+            // Total row
+            y += 5;
+            doc.setLineWidth(0.5);
+            doc.line(15, y, pageWidth - 15, y);
+            y += 5;
+            doc.setFont('helvetica', 'bold');
+            doc.text("Grand Total:", 130, y);
+            doc.setTextColor(25, 115, 232); // A nice blue color
+            doc.text(`₹${grandTotal}`, 170, y);
+            doc.setTextColor(0, 0, 0); // Reset color to black
+            y += 15;
+            
+            // Terms and Conditions
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.text("Terms & Conditions", 15, y);
+            y += 7;
+            doc.setLineWidth(0.2);
+            doc.line(15, y, pageWidth - 15, y); // Line before terms
+            y += 5;
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            const terms = [
+                "1. A 50% advance payment of the design work is required.",
+                "2. Fees may change depending on the complexity of the work. The work will only begin after you have been notified in advance.",
+                "3. More than three revisions are not permitted after the design is completed.",
+                "4. To avoid errors, all necessary information, images, and samples must be provided before starting the work.",
+                "5. A time limit cannot be provided for works without clear details.",
+                "6. An additional fee will be charged for urgent work that needs to be completed within 1 to 3 hours."
+            ];
+            terms.forEach(term => {
+                doc.text(term, 15, y);
+                y += 7;
+            });
+
+            doc.save(`Homerage_Quotation_${customerName}.pdf`);
+
+            // Hide loading state and reset button
+            loadingSpinner.classList.add('hidden');
+            downloadText.textContent = "Download PDF";
+            downloadPdfBtn.disabled = false;
+        });
+        
+        // Initial invoice update on page load
+        window.onload = updateInvoice;
+    </script>
+</body>
+</html>
